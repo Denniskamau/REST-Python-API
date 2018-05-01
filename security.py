@@ -8,7 +8,7 @@ users = [
 username_mapping = {u.username: u for u in users}
 userid_mapping = {u.id: u for u in users}
 
-def authentication(username,password):
+def authenticate(username,password):
     #Get the username using the get method instead of iterating through the list
     #By using the get method we can set the default value to be None 
     user = username_mapping.get(username, None)
