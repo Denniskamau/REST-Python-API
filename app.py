@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api,reqparse
 from flask_jwt import JWT, jwt_required
-
+from user import UserRegister
 from security import authenticate, identity
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ class Item(Resource):
     parser.add_argument('price',
         type=float,
         required=True,
-        help="THis field cannot be left blank!"
+        help="This field cannot be left blank!"
     )
     #Require an authorization token for it to be executed.
     @jwt_required()
@@ -65,5 +65,6 @@ class ItemList(Resource):
 
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items/')
+api.add_resource(UserRegister, '/register/')
 
-app.run(port=5000, debug=True)
+app.run(port=8000, debug=True)
