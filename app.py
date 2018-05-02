@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api,reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
@@ -12,9 +12,16 @@ jwt = JWT(app, authenticate, identity)
 items = []
 
 class Item(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('price',
+        type=float,
+        required=True,
+        help="THis field cannot be left blank!"
+    )
     #Require an authorization token for it to be executed.
     @jwt_required()
     def get(self, name):
+        global items
         #Next returns the first item found by the list function
         #filter function will only give a filter object hence we use next to return the object
         item = next(filter(lambda x: x['name'] == name, items), None)
@@ -23,14 +30,14 @@ class Item(Resource):
         return {'item': item}, 200 if item else 404
 
     def post(self, name):
-        
+        global items
         if next(filter(lambda x: x['name'] == name, items), None):
             return{'message': "An item with name '{}' already exists".format(name)}, 400
 
-        
+        data = Item.parser.parse_args()
         item = {'name': name, 'price':data['price']}
     
-        data = request.get_json()
+        
         #item = {'name':name, 'price':'2333'}
         items.append(item)
         return item, 201
@@ -41,7 +48,9 @@ class Item(Resource):
         return {'message': 'Item deleted'}
 
     def put(self,name):
-        data = request.get_json()
+
+        data = Item.parser.parse_args()
+
         item = next(filter(lambda x: x['name'] == name, items), None)
         if item is None:
             item = {'name':name, 'price':data['price']}
